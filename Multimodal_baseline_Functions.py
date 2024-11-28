@@ -26,8 +26,6 @@ from PIL import Image, ImageFile
 
 # In[2]:
 
-
-STOPWORDS = set(stopwords.words('english'))
 REPLACE_BY_SPACE_RE = re.compile('[/(){}\[\]\|@,;]')
 BAD_SYMBOLS_RE = re.compile('[^0-9a-z #+_]')
 EMAIL = re.compile('^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$')
@@ -38,10 +36,10 @@ STOPWORDS = set(stopwords.words('english'))
 # In[3]:
 
 
-Training_path = "C:\\Users\\itska\\Desktop\\btech project\\project\\Split Dataset\\Training_meme_dataset.csv"
-Validation_path = "C:\\Users\\itska\\Desktop\\btech project\\project\\Split Dataset\\Validation_meme_dataset.csv"
-Testing_path = "C:\\Users\\itska\\Desktop\\btech project\\project\\Split Dataset\\Testing_meme_dataset.csv"
-img_dir = "C:\\Users\\itska\\Desktop\\btech project\\project\\Labelled Images"
+Training_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Split Dataset\\Training_meme_dataset.csv"
+Validation_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Split Dataset\\Validation_meme_dataset.csv"
+Testing_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Split Dataset\\Testing_meme_dataset.csv"
+img_dir = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Labelled Images"
 
 # In[4]:
 
@@ -55,11 +53,11 @@ maxlen = 1000
 
 def encode_label(DataFrame, Label_col):
     t_y = DataFrame[Label_col].values
-    Encoder = LabelEncoder()
-    y = Encoder.fit_transform(t_y)
+    Encoder = LabelEncoder()   #label encodes 0 or 1 -> offensive or nonoffensive
+    y = Encoder.fit_transform(t_y) #fits into 0 or 1
     DataFrame[Label_col] = y
     
-def clean_text(text):
+def clean_text(text):  #preprocessing of text 
     """
         text: a string
         
@@ -102,14 +100,15 @@ def preprocess_text(Training_path,Validation_path, Testing_path):
     validation_DF = pd.read_csv(Validation_path, sep = ',')
     testing_DF = pd.read_csv(Testing_path, sep = ',')
 
-    # encoding all the labels 
+    # encoding all the labels i.e offensive or not offensive
     encode_label(testing_DF,'label')
     encode_label(training_DF, 'label')
     encode_label(validation_DF, 'label')
 
+    #preprocesses the text from the meme 
     clean_text(training_DF['sentence'][0])
 
-    # Processing the text
+    # Processing the text (same thing but with all train test and val) (overwrites the sentence part in list)
     training_DF['sentence'] = training_DF['sentence'].apply(clean_text)
     testing_DF['sentence'] = testing_DF['sentence'].apply(clean_text)
     validation_DF['sentence'] = validation_DF['sentence'].apply(clean_text)
@@ -152,7 +151,7 @@ def process_input(img):
     # Adding one more dimension to array    
     img_data = np.expand_dims(img_data, axis=0)
     #     
-    img_data = preprocess_input(img_data)
+    img_data = preprocess_input(img_data) #by VGG16
     return(img_data)
 
 
@@ -166,7 +165,7 @@ def image_generator(files,label_file, batch_size = None):
         label_file: labels of the observations
         batch_size: Number of observations to be selected at a time
         
-        return: generator object of image data
+        return: generator object of image data -> {image, labels of image}
     """
     idxs = list(range(len(files)))
     idx = 0
@@ -232,72 +231,13 @@ def text_generator(padded_seq, y, batch_size=None):
 # In[147]:
 
 
-#def img_text_generator(files, padded_seq, y, batch_size=None):
-#    """
-#        padded_seq: vectorized padded text sequence 
-#        y: label of the text
-#        batch_size: Number of observations to be selected at a time
-#        
-#        return: generator object of text data
-#    """
-#    idxs = list(range(len(padded_seq)))
-#    idx = 0
-#    while True:
-#        batch_idxs = idxs[idx:idx+batch_size]
-##         batch_idxs = np.random.choice(a = list(range(len(padded_seq))), size=batch_size) #Selecting the random batch indexes    
-#        batch_input_txt = [] # Initializing batch input text
-#        batch_input_img = [] # Initializing batch input image
-#        batch_output = [] # Initializing batch output
-#        
-#        # Traversing through the batch indexes
-#        for batch_idx in batch_idxs:
-#            input_txt = padded_seq[batch_idx] # selecting padded sequences from the batch
-#            output = y[batch_idx] # Selecting label  
-#            input_img = get_input(files[batch_idx])
-#            input_img = process_input(input_img)
-#            batch_input_txt.append(input_txt) # Appending the input (text vector)
-#            batch_input_img.append(input_img[0])
-#            batch_output.append(output) # Appending the label
-#        
-#        # Return a tuple of (input,output) to feed the network
-#        batch_x1 = np.array( batch_input_img )
-#        batch_x2 = np.array( batch_input_txt )
-#        batch_y = np.array( batch_output )
-#        if (len(batch_x1) < batch_size):
-#            idx = 0
-#        else:             
-#            yield ([batch_x1, batch_x2], batch_y)
-
-
-#def image_generator(files,label_file, batch_size = None):    
-#    while True:        
-#        # Select files (paths/indices) for the batch
-#        batch_paths = np.random.choice(a = files, 
-#                                         size = batch_size)
-#        batch_input = []
-#        batch_output = [] 
-#          
-#        # Read in each input, perform preprocessing and get labels
-#        for input_path in batch_paths:
-#            input = get_input(input_path )
-#            output = get_output(input_path,label_file=label_file )
-##             print(output)
-#            input = process_input(img=input)
-#            batch_input.append(input[0]) 
-#            batch_output.append(output) 
-#        # Return a tuple of (input,output) to feed the network
-#        batch_x = np.array( batch_input )
-#        batch_y = np.array( batch_output )
-#        
-#        yield( batch_x, batch_y )
-
 def img_text_generator(files, padded_seq, y, batch_size=None):
     """
         padded_seq: vectorized padded text sequence 
         y: label of the text
         batch_size: Number of observations to be selected at a time
         
-        return: generator object of text data
+        return: generator object of text data -> gives {image, text in image, label output of image}
     """
     while True:
         batch_idxs = np.random.choice(a = list(range(len(padded_seq))), size=batch_size) #Selecting the random batch indexes    
@@ -309,8 +249,8 @@ def img_text_generator(files, padded_seq, y, batch_size=None):
         for batch_idx in batch_idxs:
             input_txt = padded_seq[batch_idx] # selecting padded sequences from the batch
             output = y[batch_idx] # Selecting label  
-            input_img = get_input(files[batch_idx])
-            input_img = process_input(input_img)
+            input_img = get_input(files[batch_idx])  # gets the image
+            input_img = process_input(input_img) #preprocesses the image by VGG16 
             batch_input_txt.append(input_txt) # Appending the input (text vector)
             batch_input_img.append(input_img[0])
             batch_output.append(output) # Appending the label
