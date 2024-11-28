@@ -36,10 +36,10 @@ STOPWORDS = set(stopwords.words('english'))
 # In[3]:
 
 
-Training_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Split Dataset\\Training_meme_dataset.csv"
-Validation_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Split Dataset\\Validation_meme_dataset.csv"
-Testing_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Split Dataset\\Testing_meme_dataset.csv"
-img_dir = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Labelled Images"
+Training_path = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Split Dataset/Training_meme_dataset.csv"
+Validation_path = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Split Dataset/Validation_meme_dataset.csv"
+Testing_path = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Split Dataset/Testing_meme_dataset.csv"
+img_dir = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Labelled Images"
 
 # In[4]:
 
