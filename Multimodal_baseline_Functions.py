@@ -9,7 +9,7 @@ from sklearn.preprocessing import LabelEncoder
 import re
 from nltk.corpus import stopwords
 # from nltk import word_tokenize
-from keras.preprocessing import image
+import keras.utils as image
 from keras.applications.vgg16 import VGG16
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import preprocess_input
@@ -36,10 +36,10 @@ STOPWORDS = set(stopwords.words('english'))
 # In[3]:
 
 
-Training_path = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Split Dataset/Training_meme_dataset.csv"
-Validation_path = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Split Dataset/Validation_meme_dataset.csv"
-Testing_path = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Split Dataset/Testing_meme_dataset.csv"
-img_dir = "/home/jsehmbey/Desktop/btech_final_year_project/MultiOFF_Dataset/Labelled Images"
+Training_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\MultiOFF_Dataset\\Split Dataset\\Training_meme_dataset.csv"
+Validation_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\MultiOFF_Dataset\\Split Dataset\\Validation_meme_dataset.csv"
+Testing_path = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\MultiOFF_Dataset\\Split Dataset\\Testing_meme_dataset.csv"
+img_dir = "C:\\Users\\jasra\\OneDrive\\Desktop\\MAJOR PROJECT\\MultiOFF_Dataset\\Labelled Images"
 
 # In[4]:
 
@@ -260,5 +260,44 @@ def img_text_generator(files, padded_seq, y, batch_size=None):
         batch_x2 = np.array( batch_input_txt )
         batch_y = np.array( batch_output )
         yield ([batch_x1, batch_x2], batch_y)
+
+# In[148]:
+
+def img_text_generator2(files, padded_seq, attention_mask, y, batch_size=None):
+    """
+    Generator function to yield batches of image data, text data (input_ids and attention_mask), and labels.
+    
+    padded_seq: vectorized padded text sequence (input_ids)
+    attention_mask: attention mask for the text
+    y: labels for the classification task
+    batch_size: Number of observations to be selected at a time
+    """
+    while True:
+        batch_idxs = np.random.choice(a=list(range(len(padded_seq))), size=batch_size)  # Selecting random batch indexes
+        batch_input_txt = []  # Initializing batch input text (input_ids)
+        batch_attention_mask = []  # Initializing batch attention masks
+        batch_input_img = []  # Initializing batch input image
+        batch_output = []  # Initializing batch output
+        
+        # Traversing through the batch indexes
+        for batch_idx in batch_idxs:
+            input_txt = padded_seq[batch_idx]  # selecting padded sequences from the batch
+            attention = attention_mask[batch_idx]  # selecting attention mask
+            output = y[batch_idx]  # Selecting label  
+            input_img = get_input(files[batch_idx])  # Gets the image
+            input_img = process_input(input_img)  # Preprocesses the image by VGG16
+            
+            batch_input_txt.append(input_txt)  # Appending the input (text vector)
+            batch_attention_mask.append(attention)  # Appending attention mask
+            batch_input_img.append(input_img[0])  # Appending the image input
+            batch_output.append(output)  # Appending the label
+        
+        # Return a tuple of (input, output) to feed the network
+        batch_x1 = np.array(batch_input_img)  # Image batch
+        batch_x2 = np.array(batch_input_txt)  # Text batch (input_ids)
+        batch_x3 = np.array(batch_attention_mask)  # Attention mask batch
+        batch_y = np.array(batch_output)  # Label batch
+        
+        yield ([batch_x1, batch_x2, batch_x3], batch_y)  # Return image, text, attention_mask, and label
 
 # %%
