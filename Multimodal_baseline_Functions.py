@@ -28,8 +28,8 @@ from PIL import Image, ImageFile
 
 REPLACE_BY_SPACE_RE = re.compile('[/(){}\[\]\|@,;]')
 BAD_SYMBOLS_RE = re.compile('[^0-9a-z #+_]')
-EMAIL = re.compile('^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$')
-# NUMBERS = re.compile(['0-9'])
+EMAIL = re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')
+NUMBERS_RE = re.compile(r'\d+')
 STOPWORDS = set(stopwords.words('english'))
 
 
@@ -65,10 +65,10 @@ def clean_text(text):  #preprocessing of text
     """
     text = text.lower()
     text = EMAIL.sub('', text)
-#     text = NUMBERS.sub('',text)
+    text = NUMBERS_RE.sub('', text)  # Remove numbers
     text = REPLACE_BY_SPACE_RE.sub(' ',text)
     text = BAD_SYMBOLS_RE.sub('',text)    
-    text = text.replace('x','')
+    # text = text.replace('x','')
     text = ' '.join(word for word in text.split() if word not in STOPWORDS)
     
     return text
